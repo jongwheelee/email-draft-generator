@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Draft - Email Draft Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { color: #333; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+
+        .email-preview {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+        .email-preview .subject-line {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+        .email-body { white-space: pre-wrap; }
+
+        .edit-mode { display: none; margin-bottom: 16px; }
+        .edit-mode input, .edit-mode textarea {
+            width: 100%;
+            font-family: inherit;
+            font-size: 15px;
+            padding: 10px 14px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            outline: none;
+            line-height: 1.6;
+            color: #333;
+            background: #fafafa;
+        }
+        .edit-mode input { margin-bottom: 12px; font-weight: 600; }
+        .edit-mode textarea { resize: vertical; }
+
+        .edit-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background: transparent;
+            color: #888;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .edit-btn:hover { border-color: #667eea; color: #667eea; background: #f0f0ff; transform: none; box-shadow: none; }
+
+        .actions { display: flex; gap: 16px; }
+        .actions form { flex: 1; }
+        button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-send { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .btn-draft { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-back { background: #e0e0e0; color: #333; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Your Email Draft</h1>
+        <p class="subtitle">Ready to send to {{ recipient }}</p>
+
+        <div class="email-preview" id="preview">
+            <div class="subject-line"><strong>Subject:</strong> <span id="subject-display">{{ subject }}</span></div>
+            <div class="email-body" id="body-display">{{ body }}</div>
+        </div>
+
+        <div class="edit-mode" id="edit-area">
+            <input type="text" id="edit-subject" value="{{ subject }}" placeholder="Subject"/>
+            <textarea id="edit-body" rows="12">{{ body }}</textarea>
+        </div>
+
+        <button class="edit-btn" id="edit-btn" onclick="toggleEdit()">✏️ Edit draft</button>
+
+        <div class="actions">
+            <form action="/send" method="POST" id="send-form">
+                <input type="hidden" name="edited_subject" id="send-subject"/>
+                <input type="hidden" name="edited_body" id="send-body"/>
+                <button type="submit" class="btn-send">📤 Send Now</button>
+            </form>
+            <form action="/save-draft" method="POST" id="draft-form">
+                <input type="hidden" name="edited_subject" id="draft-subject"/>
+                <input type="hidden" name="edited_body" id="draft-body"/>
+                <button type="submit" class="btn-draft">💾 Save as Draft</button>
+            </form>
+        </div>
+
+        <form action="/" method="GET" style="margin-top: 16px;">
+            <button type="submit" class="btn-back">← Generate New Email</button>
+        </form>
+    </div>
+
+    <script>
+        let editing = false;
+
+        function toggleEdit() {
+            editing = !editing;
+            document.getElementById('preview').style.display = editing ? 'none' : 'block';
+            document.getElementById('edit-area').style.display = editing ? 'block' : 'none';
+            document.getElementById('edit-btn').textContent = editing ? '✅ Done editing' : '✏️ Edit draft';
+
+            if (!editing) {
+                document.getElementById('subject-display').textContent = document.getElementById('edit-subject').value;
+                document.getElementById('body-display').textContent = document.getElementById('edit-body').value;
+            }
+        }
+
+        ['send-form', 'draft-form'].forEach(function(formId) {
+            document.getElementById(formId).addEventListener('submit', function() {
+                const prefix = formId === 'send-form' ? 'send' : 'draft';
+                const subject = editing
+                    ? document.getElementById('edit-subject').value
+                    : document.getElementById('subject-display').textContent;
+                const body = editing
+                    ? document.getElementById('edit-body').value
+                    : document.getElementById('body-display').textContent;
+                document.getElementById(prefix + '-subject').value = subject;
+                document.getElementById(prefix + '-body').value = body;
+            });
+        });
+    </script>
+</body>
+</html>
