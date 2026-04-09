@@ -38,7 +38,7 @@ Key Points to include:
 
 Tone instruction: {tone_instruction}
 
-Write a complete, polished email draft with an appropriate subject line, greeting, body, and closing. Sign off with just "Best," or "Thanks," followed by a blank line — do not use "[Your name]" or any placeholder for the signature."""
+Write a complete, polished email draft with an appropriate subject line, greeting, body, and closing. Match the greeting and sign-off to the same tone as the rest of the email. IMPORTANT: do NOT use "[Your name]" or any placeholder for the signature."""
 
     response = anthropic_client.messages.create(
         model="claude-sonnet-4-20250514",
