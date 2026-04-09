@@ -27,10 +27,7 @@ anthropic_client = Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
 def generate_email_draft(recipient, purpose, key_points, tone):
     """Use Claude to generate a polished email draft."""
-    tone_instruction = {
-        "formal": "Use formal, professional language appropriate for business communication.",
-        "casual": "Use friendly, relaxed language as if writing to a friend or close colleague."
-    }
+    tone_instruction = tone
 
     prompt = f"""Write a professional email with the following details:
 
@@ -39,7 +36,7 @@ Purpose: {purpose}
 Key Points to include:
 {key_points}
 
-Tone: {tone_instruction.get(tone, "Use a balanced, professional tone.")}
+Tone instruction: {tone_instruction}
 
 Write a complete, polished email draft with an appropriate subject line, greeting, body, and closing. Sign off with just "Best," or "Thanks," followed by a blank line — do not use "[Your name]" or any placeholder for the signature."""
 
